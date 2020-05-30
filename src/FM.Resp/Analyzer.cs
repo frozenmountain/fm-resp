@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -34,65 +33,20 @@ namespace FM.Resp
                 stream.Seek(Options.InputOffset, SeekOrigin.Current);
             }
 
-            var reader = new Reader(stream);
+            // create the parser
+            var parser = new Parser(stream);
 
-            // display progress in a reasonable efficient manner
-            var displayingProgress = false;
-            reader.OnReadType += (type) =>
-            {
-                // if we are currently updating the display, ignore this
-                if (!displayingProgress)
-                {
-                    // make sure subsequent display attempt bail out
-                    displayingProgress = true;
-                    Task.Run(() =>
-                    {
-                        try
-                        {
-                            // display the progress
-                            DisplayProgress(stream, true);
-                        }
-                        finally
-                        {
-                            // allow the next read to display again
-                            displayingProgress = false;
-                        }
-                    });
-                }
-            };
-
-            // initialize collection
-            var types = Enum.GetValues(typeof(DataType)).Cast<DataType>();
-            var allElements = new List<Element>();
-            var elementsByType = new Dictionary<DataType, List<Element>>();
-            foreach (var type in types)
-            {
-                elementsByType[type] = new List<Element>();
-            }
-
-            // start reading
-            Element element;
-            while ((element = await reader.ReadAsync()).Type != DataType.EndOfStream)
-            {
-                allElements.Add(element);
-                elementsByType[element.Type].Add(element);
-            }
-
-            // one final update (should be 100%)
-            while (displayingProgress)
-            {
-                await Task.Delay(1);
-            }
-            DisplayProgress(stream, false);
-            Console.WriteLine();
+            // parse the stream
+            var result = await parser.Parse();
 
             // analyze the results
-            foreach (var type in types)
+            foreach (var type in result.Types)
             {
-                var elements = elementsByType[type];
-                Console.WriteLine($"{type}");
-                Console.WriteLine($"  Count: {elements.Count}");
-                if (elements.Count == 0)
+                var elements = result.GetElements(type);
+                Console.WriteLine();
+                Console.WriteLine($"{type}:");
+                Console.WriteLine($"  Count: {elements.Length}");
+                if (elements.Length == 0)
                 {
                     continue;
                 }
@@ -124,18 +78,6 @@ namespace FM.Resp
             }
 
             return 0;
-        }
-
-        private void DisplayProgress(Stream stream, bool resetCursorPosition)
-        {
-            var streamPosition = stream.Position;
-            var consoleCursorTop = Console.CursorTop;
-            var consoleCursorLeft = Console.CursorLeft;
-            Console.WriteLine($"Reading stream... {streamPosition} / {stream.Length} ({(float)streamPosition / stream.Length:P})");
-            if (resetCursorPosition)
-            {
-                Console.SetCursorPosition(consoleCursorLeft, consoleCursorTop);
-            }
         }
     }
 }
