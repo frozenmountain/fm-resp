@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -25,12 +26,6 @@ namespace FM.Resp
             // open the file
             var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            // seek ahead if asked to do so
-            if (Options.InputOffset > 0)
-            {
-                stream.Seek(Options.InputOffset, SeekOrigin.Current);
-            }
-
             // create the parser
             var parser = new Parser(stream);
 
@@ -38,6 +33,10 @@ namespace FM.Resp
             var result = await parser.Parse();
 
             //TODO: export
+            if (Options.OutputFormat == FileFormat.Json)
+            {
+                File.WriteAllText(Options.Output, JsonConvert.SerializeObject(result.Elements));
+            }
 
             return 0;
         }
