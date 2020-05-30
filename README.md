@@ -44,6 +44,8 @@ fmresp [verb] [options]
 ### Verbs
 ```
   analyze    Analyzes a RESP stream.
+
+  export     Exports a RESP stream.
 ```
 
 ## analyze
@@ -58,7 +60,7 @@ The `analyze` verb analyzes a RESP stream.
                     start reading.
 ```
 
-### Sample
+### File Format
 The input file should follow the [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol). The following data types are supported:
 
 #### Simple Strings
