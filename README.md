@@ -50,7 +50,7 @@ fmresp [verb] [options]
 
 ## analyze
 
-The `analyze` verb analyzes a RESP stream.
+The `analyze` verb analyzes a RESP stream and gives a summary of its data types.
 
 ### Usage
 ```
@@ -60,10 +60,23 @@ The `analyze` verb analyzes a RESP stream.
                     start reading.
 ```
 
-### File Format
+## export
+
+The `export` verb exports a RESP stream to another format, e.g. JSON.
+
+### Usage
+```
+  -i, --input     Required. The input file path.
+
+  -o, --output    Required. The output file path.
+
+  -f, --format    (Default: Json) The output file format.
+```
+
+## File Format
 The input file should follow the [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol). The following data types are supported:
 
-#### Simple Strings
+### Simple Strings
 ```
 +OK
 ```
@@ -74,7 +87,7 @@ The input file should follow the [RESP (REdis Serialization Protocol)](https://r
 +PONG
 ```
 
-#### Errors
+### Errors
 ```
 -ERR unknown command 'foobar'
 ```
@@ -82,7 +95,7 @@ The input file should follow the [RESP (REdis Serialization Protocol)](https://r
 -WRONGTYPE Operation against a key holding the wrong kind of value
 ```
 
-#### Integers
+### Integers
 ```
 :0
 ```
@@ -93,7 +106,7 @@ The input file should follow the [RESP (REdis Serialization Protocol)](https://r
 :1000
 ```
 
-#### Bulk Strings
+### Bulk Strings
 ```
 $6
 foobar
@@ -108,7 +121,7 @@ The `null` string:
 $-1
 ```
 
-#### Arrays
+### Arrays
 A bulk string array:
 ```
 *2
