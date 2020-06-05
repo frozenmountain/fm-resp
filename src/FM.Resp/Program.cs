@@ -9,14 +9,15 @@ namespace FM.Resp
     {
         static void Main(string[] args)
         {
-            using var parser = new Parser((settings) =>
+            using var parser = new CommandLine.Parser((settings) =>
             {
                 settings.CaseInsensitiveEnumValues = true;
                 settings.HelpWriter = null;
             });
 
             var result = parser.ParseArguments<
-                AnalyzeOptions
+                AnalyzeOptions,
+                ExportOptions
             >(args);
 
             result.MapResult(
@@ -25,6 +26,13 @@ namespace FM.Resp
                     return Task.Run(async () =>
                     {
                         return await new Analyzer(options).Run();
+                    }).GetAwaiter().GetResult();
+                },
+                (ExportOptions options) =>
+                {
+                    return Task.Run(async () =>
+                    {
+                        return await new Exporter(options).Run();
                     }).GetAwaiter().GetResult();
                 },
                 errors =>
