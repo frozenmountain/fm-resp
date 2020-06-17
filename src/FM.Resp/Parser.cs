@@ -53,25 +53,33 @@ namespace FM.Resp
                 elementsByType[type] = new List<Element>();
             }
 
-            // start reading
-            while (true)
+            try
             {
-                var element = await reader.ReadAsync();
-                result.AddElement(element);
-                if (element.Type == DataType.EndOfStream)
+                // start reading
+                while (true)
                 {
-                    break;
+                    var element = await reader.ReadAsync();
+                    result.AddElement(element);
+                    if (element.Type == DataType.EndOfStream)
+                    {
+                        break;
+                    }
                 }
+                return result;
             }
-
-            // one final update (should be 100%)
-            while (displayingProgress)
+            catch
             {
-                await Task.Delay(1);
+                throw;
             }
-            DisplayProgress(_Stream, false);
-
-            return result;
+            finally
+            {
+                // one final update to position cursor
+                while (displayingProgress)
+                {
+                    await Task.Delay(1);
+                }
+                DisplayProgress(_Stream, false);
+            }
         }
 
         private void DisplayProgress(Stream stream, bool resetCursorPosition)

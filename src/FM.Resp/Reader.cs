@@ -21,24 +21,7 @@ namespace FM.Resp
 
         public Element Read()
         {
-            var type = ReadType();
-            try
-            {
-                return type switch
-                {
-                    DataType.EndOfStream => new Element(type, null),
-                    DataType.SimpleString => ReadSimpleString(),
-                    DataType.Error => ReadError(),
-                    DataType.Integer => ReadInteger(),
-                    DataType.BulkString => ReadBulkString(),
-                    DataType.Array => ReadArray(),
-                    _ => throw new Exception($"Unsupported type '{type}'."),
-                };
-            }
-            finally
-            {
-                OnReadType?.Invoke(type);
-            }
+            return Task.Run(() => ReadAsync()).GetAwaiter().GetResult();
         }
 
         public Task<Element> ReadAsync()
@@ -138,40 +121,6 @@ namespace FM.Resp
             return new Element(DataType.Integer, int.Parse(ReadAscii("integer")));
         }
 
-        private Element ReadBulkString()
-        {
-            var length = int.Parse(ReadAscii("bulk string length"));
-            if (length == -1)
-            {
-                return new Element(DataType.BulkString, null);
-            }
-
-            var bytes = new byte[length];
-            _Stream.Read(bytes);
-            _StreamPosition += length;
-
-            var c = (char)_Stream.ReadByte();
-            if (c == '\r')
-            {
-                _StreamPosition++;
-                if (_Stream.ReadByte() == '\n')
-                {
-                    _StreamPosition++;
-                    return new Element(DataType.BulkString, Encoding.UTF8.GetString(bytes));
-                }
-                throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading second byte of bulk string termination at position {_StreamPosition}.");
-            }
-            else if (c == '\n')
-            {
-                _StreamPosition++;
-                return new Element(DataType.BulkString, Encoding.UTF8.GetString(bytes));
-            }
-            else
-            {
-                throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
-            }
-        }
-
         private async Task<Element> ReadBulkStringAsync()
         {
             var lengthPosition = _StreamPosition;
@@ -187,9 +136,103 @@ namespace FM.Resp
 
             var bytes = new byte[length];
             await _Stream.ReadAsync(bytes);
-            _StreamPosition += length;
+            _StreamPosition += bytes.Length;
 
             var c = (char)_Stream.ReadByte();
+            
+            // special case where +OK gets mixed into the end of a large payload
+            if (c == '+' && _Stream.ReadByte() == 'O' && _Stream.ReadByte() == 'K')
+            {
+                var x = (char)_Stream.ReadByte();
+                if (x == '\r')
+                {
+                    if (_Stream.ReadByte() == '\n')
+                    {
+                        c = (char)_Stream.ReadByte();
+                        _StreamPosition += 5;
+                    }
+                    else
+                    {
+                        throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
+                    }
+                }
+                else if (x == '\n')
+                {
+                    c = (char)_Stream.ReadByte();
+                    _StreamPosition += 4;
+                }
+                else
+                {
+                    throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
+                }
+            }
+
+            // special case where +OK gets mixed into the middle of a large payload
+            if (c != '\r' && c != '\n')
+            {
+                for (var i = 0; i < bytes.Length; i++)
+                {
+                    if (i + 2 < bytes.Length && bytes[i] == '+' && bytes[i + 1] == 'O' && bytes[i + 2] == 'K')
+                    {
+                        var spliceLength = -1;
+                        if (i + 4 < bytes.Length && bytes[i + 3] == '\r' && bytes[i + 4] == '\n')
+                        {
+                            spliceLength = 5;
+                        }
+                        else if (i + 3 < bytes.Length && bytes[i + 3] == '\n')
+                        {
+                            spliceLength = 4;
+                        }
+
+                        if (spliceLength != -1)
+                        {
+                            Buffer.BlockCopy(bytes, i + spliceLength, bytes, i, bytes.Length - i - spliceLength);
+
+                            var newBytes = new byte[spliceLength - 1];
+                            await _Stream.ReadAsync(newBytes);
+                            _StreamPosition += newBytes.Length;
+
+                            bytes[bytes.Length - newBytes.Length] = (byte)c;
+                            Buffer.BlockCopy(newBytes, 0, bytes, bytes.Length - newBytes.Length, newBytes.Length);
+
+                            c = (char)_Stream.ReadByte();
+
+                            i--;
+                        }
+                    }
+                }
+            }
+
+            if (c != '\r' && c != '\n')
+            {
+                char x = '\0';
+                var shiftLength = -1;
+                if (bytes.Length > 0 && bytes[0] == '\n')
+                {
+                    x = (char)_Stream.ReadByte();
+                    if (x == '\n')
+                    {
+                        shiftLength = 1;
+                    }
+                }
+                else if (bytes.Length > 1 && bytes[0] == '\r' && bytes[1] == '\n')
+                {
+                    x = (char)_Stream.ReadByte();
+                    if (x == '\r')
+                    {
+                        shiftLength = 2;
+                    }
+                }
+
+                if (shiftLength != -1)
+                {
+                    Buffer.BlockCopy(bytes, 1, bytes, 0, bytes.Length - 1);
+                    bytes[bytes.Length - 1] = (byte)c;
+
+                    c = x;
+                }
+            }
+
             if (c == '\r')
             {
                 _StreamPosition++;
@@ -209,21 +252,6 @@ namespace FM.Resp
             {
                 throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
             }
-        }
-
-        private Element ReadArray()
-        {
-            var count = int.Parse(ReadAscii("array size"));
-            if (count == -1)
-            {
-                return new Element(DataType.Array, null);
-            }
-            var array = new Element[count];
-            for (var i = 0; i < count; i++)
-            {
-                array[i] = Read();
-            }
-            return new Element(DataType.Array, array);
         }
 
         private async Task<Element> ReadArrayAsync()
