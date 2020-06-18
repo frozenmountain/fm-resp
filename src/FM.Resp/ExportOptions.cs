@@ -8,7 +8,7 @@ namespace FM.Resp
         [Option('i', "input", Required = true, HelpText = "The input file path.")]
         public string Input { get; set; }
 
-        [Option('o', "output", Required = true, HelpText = "The output file path.")]
+        [Option('o', "output", Required = false, HelpText = "The output file path. If not set, output is directed to stdout.")]
         public string Output { get; set; }
 
         [Option('f', "format", Required = false, Default = FileFormat.Json, HelpText = "The output file format.")]

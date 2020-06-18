@@ -20,7 +20,7 @@ namespace FM.Resp
             // sanity check on the file
             if (!File.Exists(Options.Input))
             {
-                Console.WriteLine($"Input file does not exist: {Options.Input}");
+                Console.Error.WriteLine($"Input file does not exist: {Options.Input}");
                 return 1;
             }
 
@@ -43,9 +43,9 @@ namespace FM.Resp
             foreach (var type in result.Types)
             {
                 var elements = result.GetElements(type);
-                Console.WriteLine();
-                Console.WriteLine($"{type}:");
-                Console.WriteLine($"  Count: {elements.Length}");
+                Console.Error.WriteLine();
+                Console.Error.WriteLine($"{type}:");
+                Console.Error.WriteLine($"  Count: {elements.Length}");
                 if (elements.Length == 0)
                 {
                     continue;
@@ -56,24 +56,24 @@ namespace FM.Resp
                 {
                     var strings = elements.Select(x => x.Value).Cast<string>();
                     var lengths = strings.Select(x => x?.Length ?? 0);
-                    Console.WriteLine($"  Length Average: {lengths.Average()}");
-                    Console.WriteLine($"  Length Minimum: {lengths.Min()}");
-                    Console.WriteLine($"  Length Maximum: {lengths.Max()}");
+                    Console.Error.WriteLine($"  Length Average: {lengths.Average()}");
+                    Console.Error.WriteLine($"  Length Minimum: {lengths.Min()}");
+                    Console.Error.WriteLine($"  Length Maximum: {lengths.Max()}");
                 }
                 else if (type == DataType.Integer)
                 {
                     var integers = elements.Select(x => x.Value).Cast<int>();
-                    Console.WriteLine($"  Value Average: {integers.Average()}");
-                    Console.WriteLine($"  Value Minimum: {integers.Min()}");
-                    Console.WriteLine($"  Value Maximum: {integers.Max()}");
+                    Console.Error.WriteLine($"  Value Average: {integers.Average()}");
+                    Console.Error.WriteLine($"  Value Minimum: {integers.Min()}");
+                    Console.Error.WriteLine($"  Value Maximum: {integers.Max()}");
                 }
                 else if (type == DataType.Array)
                 {
                     var arrays = elements.Select(x => x.Value).Cast<Element[]>();
                     var counts = arrays.Select(x => x?.Length ?? 0);
-                    Console.WriteLine($"  Count Average: {counts.Average()}");
-                    Console.WriteLine($"  Count Minimum: {counts.Min()}");
-                    Console.WriteLine($"  Count Maximum: {counts.Max()}");
+                    Console.Error.WriteLine($"  Count Average: {counts.Average()}");
+                    Console.Error.WriteLine($"  Count Minimum: {counts.Min()}");
+                    Console.Error.WriteLine($"  Count Maximum: {counts.Max()}");
                 }
             }
 
