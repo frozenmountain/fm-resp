@@ -8,13 +8,13 @@ namespace FM.Resp
         [Option('i', "input", Required = true, HelpText = "The input file path.")]
         public string Input { get; set; }
 
-        [Option('o', "output", Required = false, HelpText = "The output file path. If not set, output is directed to stdout.")]
+        [Option('o', "output", HelpText = "The output file path. If not set, stdout is used.")]
         public string Output { get; set; }
 
-        [Option('y', Required = false, Default = false, HelpText = "Overwrite the output file path, if present.")]
+        [Option('y', HelpText = "Overwrite the output file path, if present.")]
         public bool Overwrite { get; set; }
 
-        [Option("indented", Required = false, Default = false, HelpText = "Use indented output formatting.")]
+        [Option("indented", HelpText = "Use indented output formatting.")]
         public bool Indented { get; set; }
     }
 }

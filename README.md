@@ -58,8 +58,7 @@ The `analyze` verb analyzes an RESP stream for integrity and gives a summary of 
 ```
   -i, --input       Required. The input file path.
 
-  --input-offset    (Default: 0) The offset into the input file at which to
-                    start reading.
+  --input-offset    (Default: 0) The input file offset.
 ```
 
 ## export
@@ -70,12 +69,11 @@ The `export` verb exports an RESP stream to JSON for easier reading and manipula
 ```
   -i, --input     Required. The input file path.
 
-  -o, --output    The output file path. If not set, output is directed to
-                  stdout.
+  -o, --output    The output file path. If not set, stdout is used.
 
-  -y              (Default: false) Overwrite the output file path, if present.
+  -y              Overwrite the output file path, if present.
 
-  --indented      (Default: false) Use indented output formatting.
+  --indented      Use indented output formatting.
 ```
 
 ## filter
@@ -86,40 +84,33 @@ The `filter` verb filters exported JSON to assist with analysis of large exporte
 ```
   -i, --input                   Required. The input file path.
 
-  -o, --output                  The output file path. If not set, output is
-                                directed to the stdout.
+  -o, --output                  The output file path. If not set, stdout is used.
 
-  -y                            (Default: false) Overwrite the output file path,
-                                if present.
+  -y                            Overwrite the output file path, if present.
 
-  --indented                    (Default: false) Use indented output formatting.
+  --indented                    Use indented output formatting.
 
-  --no-simple-strings           (Default: false) Filter top-level simple
-                                strings.
+  --no-simple-strings           Filter top-level simple strings.
 
-  --no-errors                   (Default: false) Filter top-level errors.
+  --no-errors                   Filter top-level errors.
 
-  --no-integers                 (Default: false) Filter top-level integers.
+  --no-integers                 Filter top-level integers.
 
-  --no-bulk-strings             (Default: false) Filter top-level bulk strings.
+  --no-bulk-strings             Filter top-level bulk strings.
 
-  --no-arrays                   (Default: false) Filter top-level arrays.
+  --no-arrays                   Filter top-level arrays.
 
-  --no-simple-string-values     (Default: false) Filter top-level simple string
-                                values.
+  --no-simple-string-values     Filter top-level simple string values.
 
-  --no-error-values             (Default: false) Filter top-level error values.
+  --no-error-values             Filter top-level error values.
 
-  --no-integer-values           (Default: false) Filter top-level integer
-                                values.
+  --no-integer-values           Filter top-level integer values.
 
-  --no-bulk-string-values       (Default: false) Filter top-level bulk string
-                                values.
+  --no-bulk-string-values       Filter top-level bulk string values.
 
-  --no-array-values             (Default: false) Filter top-level array values.
+  --no-array-values             Filter top-level array values.
 
-  --min-simple-string-length    Minimum top-level simple string length
-                                (inclusive).
+  --min-simple-string-length    Minimum top-level simple string length (inclusive).
 
   --min-error-length            Minimum top-level error length (inclusive).
 
@@ -127,13 +118,11 @@ The `filter` verb filters exported JSON to assist with analysis of large exporte
 
   --min-integer-length          Minimum top-level integer length (inclusive).
 
-  --min-bulk-string-length      Minimum top-level bulk string length
-                                (inclusive).
+  --min-bulk-string-length      Minimum top-level bulk string length (inclusive).
 
   --min-array-length            Minimum top-level array length (inclusive).
 
-  --max-simple-string-length    Maximum top-level simple string length
-                                (inclusive).
+  --max-simple-string-length    Maximum top-level simple string length (inclusive).
 
   --max-error-length            Maximum top-level error length (inclusive).
 
@@ -141,16 +130,13 @@ The `filter` verb filters exported JSON to assist with analysis of large exporte
 
   --max-integer-length          Maximum top-level integer length (inclusive).
 
-  --max-bulk-string-length      Maximum top-level bulk string length
-                                (inclusive).
+  --max-bulk-string-length      Maximum top-level bulk string length (inclusive).
 
   --max-array-length            Maximum top-level array length (inclusive).
 
-  --from-index                  The index of the first top-level element to
-                                include.
+  --from-index                  The index of the first top-level element to include.
 
-  --to-index                    The index of the last top-level element to
-                                include.
+  --to-index                    The index of the last top-level element to include.
 ```
 
 ## RESP Format
