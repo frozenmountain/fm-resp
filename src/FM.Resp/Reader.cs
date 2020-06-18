@@ -33,7 +33,7 @@ namespace FM.Resp
             {
                 return type switch
                 {
-                    DataType.EndOfStream => Task.FromResult(new Element(type, null, _NextIndex++)),
+                    DataType.EndOfStream => Task.FromResult(new Element(type, null, _NextIndex++, -1)),
                     DataType.SimpleString => Task.FromResult(ReadSimpleString()),
                     DataType.Error => Task.FromResult(ReadError()),
                     DataType.Integer => Task.FromResult(ReadInteger()),
@@ -110,17 +110,20 @@ namespace FM.Resp
 
         private Element ReadSimpleString()
         {
-            return new Element(DataType.SimpleString, ReadAscii("simple string"), _NextIndex++);
+            var value = ReadAscii("simple string");
+            return new Element(DataType.SimpleString, value, _NextIndex++, value.Length);
         }
 
         private Element ReadError()
         {
-            return new Element(DataType.Error, ReadAscii("error"), _NextIndex++);
+            var value = ReadAscii("error");
+            return new Element(DataType.Error, value, _NextIndex++, value.Length);
         }
 
         private Element ReadInteger()
         {
-            return new Element(DataType.Integer, int.Parse(ReadAscii("integer")), _NextIndex++);
+            var value = ReadAscii("integer");
+            return new Element(DataType.Integer, int.Parse(value), _NextIndex++, value.Length);
         }
 
         private async Task<Element> ReadBulkStringAsync()
@@ -133,7 +136,7 @@ namespace FM.Resp
             }
             if (length == -1)
             {
-                return new Element(DataType.BulkString, null, _NextIndex++);
+                return new Element(DataType.BulkString, null, _NextIndex++, -1);
             }
 
             var bytes = new byte[length];
@@ -241,14 +244,16 @@ namespace FM.Resp
                 if (_Stream.ReadByte() == '\n')
                 {
                     _StreamPosition++;
-                    return new Element(DataType.BulkString, Encoding.UTF8.GetString(bytes), _NextIndex++);
+                    var value = Encoding.UTF8.GetString(bytes);
+                    return new Element(DataType.BulkString, value, _NextIndex++, value.Length);
                 }
                 throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading second byte of bulk string termination at position {_StreamPosition}.");
             }
             else if (c == '\n')
             {
                 _StreamPosition++;
-                return new Element(DataType.BulkString, Encoding.UTF8.GetString(bytes), _NextIndex++);
+                var value = Encoding.UTF8.GetString(bytes);
+                return new Element(DataType.BulkString, value, _NextIndex++, value.Length);
             }
             else
             {
@@ -261,7 +266,7 @@ namespace FM.Resp
             var count = int.Parse(ReadAscii("array size"));
             if (count == -1)
             {
-                return new Element(DataType.Array, null, _NextIndex++);
+                return new Element(DataType.Array, null, _NextIndex++, -1);
             }
 
             var currentNextIndex = _NextIndex;
@@ -272,7 +277,7 @@ namespace FM.Resp
                 array[i] = await ReadAsync();
             }
             _NextIndex = currentNextIndex;
-            return new Element(DataType.Array, array, _NextIndex++);
+            return new Element(DataType.Array, array, _NextIndex++, count);
         }
     }
 }

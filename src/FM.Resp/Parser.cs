@@ -87,7 +87,7 @@ namespace FM.Resp
             var streamPosition = stream.Position;
             var consoleCursorTop = Console.CursorTop;
             var consoleCursorLeft = Console.CursorLeft;
-            Console.WriteLine($"Reading stream... {streamPosition} / {stream.Length} ({(float)streamPosition / stream.Length:P})");
+            Console.WriteLine($"Reading RESP stream... {streamPosition} / {stream.Length} ({(float)streamPosition / stream.Length:P})");
             if (resetCursorPosition)
             {
                 Console.SetCursorPosition(consoleCursorLeft, consoleCursorTop);
