@@ -43,14 +43,16 @@ fmresp [verb] [options]
 
 ### Verbs
 ```
-  analyze    Analyzes a RESP stream.
+  analyze    Analyzes an RESP stream.
 
-  export     Exports a RESP stream.
+  export     Exports an RESP stream to JSON.
+
+  filter     Filters exported JSON.
 ```
 
 ## analyze
 
-The `analyze` verb analyzes a RESP stream and gives a summary of its data types.
+The `analyze` verb analyzes an RESP stream for integrity and gives a summary of its data types.
 
 ### Usage
 ```
@@ -62,19 +64,99 @@ The `analyze` verb analyzes a RESP stream and gives a summary of its data types.
 
 ## export
 
-The `export` verb exports a RESP stream to another format, e.g. JSON.
+The `export` verb exports an RESP stream to JSON for easier reading and manipulation.
 
 ### Usage
 ```
   -i, --input     Required. The input file path.
 
-  -o, --output    Required. The output file path.
+  -o, --output    The output file path. If not set, output is directed to
+                  stdout.
 
-  -f, --format    (Default: Json) The output file format.
+  -y              (Default: false) Overwrite the output file path, if present.
+
+  --indented      (Default: false) Use indented output formatting.
 ```
 
-## File Format
-The input file should follow the [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol). The following data types are supported:
+## filter
+
+The `filter` verb filters exported JSON to assist with analysis of large exported files.
+
+### Usage
+```
+  -i, --input                   Required. The input file path.
+
+  -o, --output                  The output file path. If not set, output is
+                                directed to the stdout.
+
+  -y                            (Default: false) Overwrite the output file path,
+                                if present.
+
+  --indented                    (Default: false) Use indented output formatting.
+
+  --no-simple-strings           (Default: false) Filter top-level simple
+                                strings.
+
+  --no-errors                   (Default: false) Filter top-level errors.
+
+  --no-integers                 (Default: false) Filter top-level integers.
+
+  --no-bulk-strings             (Default: false) Filter top-level bulk strings.
+
+  --no-arrays                   (Default: false) Filter top-level arrays.
+
+  --no-simple-string-values     (Default: false) Filter top-level simple string
+                                values.
+
+  --no-error-values             (Default: false) Filter top-level error values.
+
+  --no-integer-values           (Default: false) Filter top-level integer
+                                values.
+
+  --no-bulk-string-values       (Default: false) Filter top-level bulk string
+                                values.
+
+  --no-array-values             (Default: false) Filter top-level array values.
+
+  --min-simple-string-length    Minimum top-level simple string length
+                                (inclusive).
+
+  --min-error-length            Minimum top-level error length (inclusive).
+
+  --min-integer                 Minimum top-level integer (inclusive).
+
+  --min-integer-length          Minimum top-level integer length (inclusive).
+
+  --min-bulk-string-length      Minimum top-level bulk string length
+                                (inclusive).
+
+  --min-array-length            Minimum top-level array length (inclusive).
+
+  --max-simple-string-length    Maximum top-level simple string length
+                                (inclusive).
+
+  --max-error-length            Maximum top-level error length (inclusive).
+
+  --max-integer                 Maximum top-level integer (inclusive).
+
+  --max-integer-length          Maximum top-level integer length (inclusive).
+
+  --max-bulk-string-length      Maximum top-level bulk string length
+                                (inclusive).
+
+  --max-array-length            Maximum top-level array length (inclusive).
+
+  --from-index                  The index of the first top-level element to
+                                include.
+
+  --to-index                    The index of the last top-level element to
+                                include.
+```
+
+## RESP Format
+RESP streams must follow the [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol).
+
+The following data types are supported:
 
 ### Simple Strings
 ```

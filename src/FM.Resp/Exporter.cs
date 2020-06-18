@@ -39,32 +39,29 @@ namespace FM.Resp
             // parse the stream
             var result = await parser.Parse();
 
-            if (Options.OutputFormat == FileFormat.Json)
+            var elements = result.Elements.Where(x => x.Type != DataType.EndOfStream);
+
+            Console.Error.Write("Serializing to JSON...");
+            var json = JsonConvert.SerializeObject(elements, Options.Indented ? Formatting.Indented : Formatting.None, new JsonSerializerSettings
             {
-                var elements = result.Elements.Where(x => x.Type != DataType.EndOfStream);
+                NullValueHandling = NullValueHandling.Ignore
+            });
+            Console.Error.WriteLine(" done.");
 
-                Console.Error.Write("Serializing to JSON...");
-                var json = JsonConvert.SerializeObject(elements, Options.Indented ? Formatting.Indented : Formatting.None, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
+            foreach (var type in new[] { DataType.SimpleString, DataType.Error, DataType.Integer, DataType.BulkString, DataType.Array })
+            {
+                Console.Error.WriteLine($"{type} count: {elements.Count(x => x.Type == type)}");
+            }
+
+            if (Options.Output != null)
+            {
+                Console.Error.Write("Writing to output file...");
+                File.WriteAllText(Options.Output, json);
                 Console.Error.WriteLine(" done.");
-
-                foreach (var type in new[] { DataType.SimpleString, DataType.Error, DataType.Integer, DataType.BulkString, DataType.Array })
-                {
-                    Console.Error.WriteLine($"{type} count: {elements.Count(x => x.Type == type)}");
-                }
-
-                if (Options.Output != null)
-                {
-                    Console.Error.Write("Writing to output file...");
-                    File.WriteAllText(Options.Output, json);
-                    Console.Error.WriteLine(" done.");
-                }
-                else
-                {
-                    Console.WriteLine(json);
-                }
+            }
+            else
+            {
+                Console.WriteLine(json);
             }
 
             return 0;

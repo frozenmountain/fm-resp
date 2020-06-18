@@ -2,7 +2,7 @@
 
 namespace FM.Resp
 {
-    [Verb("export", HelpText = "Exports a RESP stream.")]
+    [Verb("export", HelpText = "Exports an RESP stream to JSON.")]
     class ExportOptions
     {
         [Option('i', "input", Required = true, HelpText = "The input file path.")]
@@ -10,9 +10,6 @@ namespace FM.Resp
 
         [Option('o', "output", Required = false, HelpText = "The output file path. If not set, output is directed to stdout.")]
         public string Output { get; set; }
-
-        [Option('f', "format", Required = false, Default = FileFormat.Json, HelpText = "The output file format.")]
-        public FileFormat OutputFormat { get; set; }
 
         [Option('y', Required = false, Default = false, HelpText = "Overwrite the output file path, if present.")]
         public bool Overwrite { get; set; }
