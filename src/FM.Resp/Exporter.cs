@@ -20,7 +20,13 @@ namespace FM.Resp
             // sanity check on the file
             if (!File.Exists(Options.Input))
             {
-                Console.WriteLine($"Input file does not exist: {Options.Input}");
+                Console.Error.WriteLine($"Input file does not exist: {Options.Input}");
+                return 1;
+            }
+
+            if (Options.Output != null && !Options.Overwrite && File.Exists(Options.Output))
+            {
+                Console.Error.WriteLine($"Output file already exists (use -y to overwrite): {Options.Output}");
                 return 1;
             }
 
@@ -35,27 +41,29 @@ namespace FM.Resp
 
             if (Options.OutputFormat == FileFormat.Json)
             {
-                if (!Options.Overwrite && File.Exists(Options.Output))
-                {
-                    throw new Exception($"Output file already exists (use -y to overwrite): {Options.Output}");
-                }
-
                 var elements = result.Elements.Where(x => x.Type != DataType.EndOfStream);
 
-                Console.Write("Serializing to JSON...");
+                Console.Error.Write("Serializing to JSON...");
                 var json = JsonConvert.SerializeObject(elements, Options.Indented ? Formatting.Indented : Formatting.None, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore
                 });
-                Console.WriteLine(" done.");
-
-                Console.Write("Writing to output file...");
-                File.WriteAllText(Options.Output, json);
-                Console.WriteLine(" done.");
+                Console.Error.WriteLine(" done.");
 
                 foreach (var type in new[] { DataType.SimpleString, DataType.Error, DataType.Integer, DataType.BulkString, DataType.Array })
                 {
-                    Console.WriteLine($"{type} count: {elements.Count(x => x.Type == type)}");
+                    Console.Error.WriteLine($"{type} count: {elements.Count(x => x.Type == type)}");
+                }
+
+                if (Options.Output != null)
+                {
+                    Console.Error.Write("Writing to output file...");
+                    File.WriteAllText(Options.Output, json);
+                    Console.Error.WriteLine(" done.");
+                }
+                else
+                {
+                    Console.WriteLine(json);
                 }
             }
 
