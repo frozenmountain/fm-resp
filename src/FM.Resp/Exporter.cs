@@ -19,12 +19,12 @@ namespace FM.Resp
             // sanity check on the file
             if (!File.Exists(Options.Input))
             {
-                Console.WriteLine($"File does not exist: {Options.Input}");
+                Console.WriteLine($"Input file does not exist: {Options.Input}");
                 return 1;
             }
 
             // open the file
-            var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // create the parser
             var parser = new Parser(stream);
@@ -32,10 +32,20 @@ namespace FM.Resp
             // parse the stream
             var result = await parser.Parse();
 
-            //TODO: export
             if (Options.OutputFormat == FileFormat.Json)
             {
-                File.WriteAllText(Options.Output, JsonConvert.SerializeObject(result.Elements));
+                if (!Options.Overwrite && File.Exists(Options.Output))
+                {
+                    throw new Exception($"Output file already exists (use -y to overwrite): {Options.Output}");
+                }
+
+                Console.Write("Serializing to JSON...");
+                var json = JsonConvert.SerializeObject(result.Elements, Options.Indented ? Formatting.Indented : Formatting.None);
+                Console.WriteLine(" done.");
+
+                Console.Write("Writing to output file...");
+                File.WriteAllText(Options.Output, json);
+                Console.WriteLine(" done.");
             }
 
             return 0;

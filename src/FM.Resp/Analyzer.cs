@@ -20,12 +20,12 @@ namespace FM.Resp
             // sanity check on the file
             if (!File.Exists(Options.Input))
             {
-                Console.WriteLine($"File does not exist: {Options.Input}");
+                Console.WriteLine($"Input file does not exist: {Options.Input}");
                 return 1;
             }
 
             // open the file
-            var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // seek ahead if asked to do so
             if (Options.InputOffset > 0)

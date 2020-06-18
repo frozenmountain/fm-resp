@@ -17,7 +17,8 @@ namespace FM.Resp
 
             var result = parser.ParseArguments<
                 AnalyzeOptions,
-                ExportOptions
+                ExportOptions,
+                FilterOptions
             >(args);
 
             result.MapResult(
@@ -33,6 +34,13 @@ namespace FM.Resp
                     return Task.Run(async () =>
                     {
                         return await new Exporter(options).Run();
+                    }).GetAwaiter().GetResult();
+                },
+                (FilterOptions options) =>
+                {
+                    return Task.Run(async () =>
+                    {
+                        return await new Filterer(options).Run();
                     }).GetAwaiter().GetResult();
                 },
                 errors =>

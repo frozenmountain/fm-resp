@@ -13,5 +13,11 @@ namespace FM.Resp
 
         [Option('f', "format", Required = false, Default = FileFormat.Json, HelpText = "The output file format.")]
         public FileFormat OutputFormat { get; set; }
+
+        [Option('y', Required = false, Default = false, HelpText = "Overwrite the output file path, if present.")]
+        public bool Overwrite { get; set; }
+
+        [Option("indented", Required = false, Default = false, HelpText = "Use indented output formatting.")]
+        public bool Indented { get; set; }
     }
 }
