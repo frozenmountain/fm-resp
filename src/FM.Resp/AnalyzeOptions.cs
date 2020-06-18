@@ -2,7 +2,7 @@
 
 namespace FM.Resp
 {
-    [Verb("analyze", HelpText = "Analyzes a RESP stream.")]
+    [Verb("analyze", HelpText = "Analyzes an RESP stream.")]
     class AnalyzeOptions
     {
         [Option('i', "input", Required = true, HelpText = "The input file path.")]
