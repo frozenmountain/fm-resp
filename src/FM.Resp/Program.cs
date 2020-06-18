@@ -45,7 +45,7 @@ namespace FM.Resp
                 },
                 errors =>
                 {
-                    var helpText = HelpText.AutoBuild(result, 120);
+                    var helpText = HelpText.AutoBuild(result, 96);
                     helpText.Copyright = "Copyright (C) 2020 Frozen Mountain Software Ltd.";
                     helpText.AddEnumValuesToHelpText = true;
                     Console.Error.Write(helpText);
