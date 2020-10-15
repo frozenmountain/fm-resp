@@ -54,25 +54,19 @@ The `analyze` verb analyzes an RESP stream for integrity and gives a summary of 
 
 The `export` verb exports an RESP stream to JSON for easier reading and manipulation.
 
-      -i, --input     Required. The input file path.
+      -o, --output      The output file path. If not set, stdout is used.
 
-      -o, --output    The output file path. If not set, stdout is used.
+      -y                Overwrite the output file path, if present.
 
-      -y              Overwrite the output file path, if present.
+      --indented        Use indented output formatting.
 
-      --indented      Use indented output formatting.
+      -i, --input       Required. The input file path.
+
+      --input-offset    (Default: 0) The input file offset.
 
 ## filter
 
 The `filter` verb filters exported JSON to assist with analysis of large exported files.
-
-      -i, --input                   Required. The input file path.
-
-      -o, --output                  The output file path. If not set, stdout is used.
-
-      -y                            Overwrite the output file path, if present.
-
-      --indented                    Use indented output formatting.
 
       --no-simple-strings           Filter top-level simple strings.
 
@@ -121,6 +115,16 @@ The `filter` verb filters exported JSON to assist with analysis of large exporte
       --from-index                  The index of the first top-level element to include.
 
       --to-index                    The index of the last top-level element to include.
+
+      -o, --output                  The output file path. If not set, stdout is used.
+
+      -y                            Overwrite the output file path, if present.
+
+      --indented                    Use indented output formatting.
+
+      -i, --input                   Required. The input file path.
+
+      --input-offset                (Default: 0) The input file offset.
 
 ## RESP Format
 RESP streams must follow the [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol).
