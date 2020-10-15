@@ -202,6 +202,8 @@ namespace FM.Resp
                     case DataType.Array:
                         element.NoValue = Options.NoArrayValues;
                         break;
+                    default:
+                        throw new InvalidOperationException($"Unexpected element type '{element.Type}'.");
                 }
             }
 

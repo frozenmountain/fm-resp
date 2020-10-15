@@ -9,9 +9,9 @@ namespace FM.Resp
         public DataType[] Types { get; }
 
         public Element[] Elements { get { return _Elements.ToArray(); } }
-        private List<Element> _Elements;
+        private readonly List<Element> _Elements;
 
-        private Dictionary<DataType, List<Element>> _ElementsByType;
+        private readonly Dictionary<DataType, List<Element>> _ElementsByType;
 
         public ParseResult()
         {
