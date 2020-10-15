@@ -13,7 +13,7 @@ namespace FM.Resp
             : base(options)
         { }
 
-        protected override async Task<int> ProcessStream(Stream stream)
+        protected override Task<IEnumerable<Element>> ProcessStreamIntoElements(Stream stream)
         {
             // deserialize
             Console.Error.Write("Deserializing from JSON...");
@@ -186,30 +186,7 @@ namespace FM.Resp
                 }
             }
 
-            Console.Error.Write("Serializing to JSON...");
-            var json = JsonConvert.SerializeObject(elements, Options.Indented ? Formatting.Indented : Formatting.None, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            });
-            Console.Error.WriteLine(" done.");
-
-            foreach (var type in new[] { DataType.SimpleString, DataType.Error, DataType.Integer, DataType.BulkString, DataType.Array })
-            {
-                Console.Error.WriteLine($"{type} count: {elements.Count(x => x.Type == type)}");
-            }
-
-            if (Options.Output != null)
-            {
-                Console.Error.Write("Writing to output file...");
-                await File.WriteAllTextAsync(Options.Output, json);
-                Console.Error.WriteLine(" done.");
-            }
-            else
-            {
-                Console.WriteLine(json);
-            }
-
-            return 0;
+            return Task.FromResult(elements);
         }
 
         private IEnumerable<Element> Filter(IEnumerable<Element> elements, Func<Element, bool> condition, out int removeCount)
