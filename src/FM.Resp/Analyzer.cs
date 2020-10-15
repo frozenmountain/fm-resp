@@ -6,33 +6,14 @@ using System.Threading.Tasks;
 
 namespace FM.Resp
 {
-    class Analyzer
+    class Analyzer : InputVerb<AnalyzeOptions>
     {
-        public AnalyzeOptions Options { get; private set; }
-
         public Analyzer(AnalyzeOptions options)
+            : base(options)
+        { }
+
+        protected override async Task<int> ProcessStream(Stream stream)
         {
-            Options = options;
-        }
-
-        public async Task<int> Run()
-        {
-            // sanity check on the file
-            if (!File.Exists(Options.Input))
-            {
-                Console.Error.WriteLine($"Input file does not exist: {Options.Input}");
-                return 1;
-            }
-
-            // open the file
-            using var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            // seek ahead if asked to do so
-            if (Options.InputOffset > 0)
-            {
-                stream.Seek(Options.InputOffset, SeekOrigin.Current);
-            }
-
             // create the parser
             var parser = new Parser(stream);
 
