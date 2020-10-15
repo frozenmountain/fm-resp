@@ -46,8 +46,6 @@ Use `dotnet fmresp.dll` instead of `fmresp` to run it.
 
 The `analyze` verb analyzes an RESP stream for integrity and gives a summary of its data types.
 
-### Options
-
       -i, --input       Required. The input file path.
 
       --input-offset    (Default: 0) The input file offset.
@@ -55,8 +53,6 @@ The `analyze` verb analyzes an RESP stream for integrity and gives a summary of 
 ## export
 
 The `export` verb exports an RESP stream to JSON for easier reading and manipulation.
-
-### Options
 
       -i, --input     Required. The input file path.
 
@@ -69,8 +65,6 @@ The `export` verb exports an RESP stream to JSON for easier reading and manipula
 ## filter
 
 The `filter` verb filters exported JSON to assist with analysis of large exported files.
-
-### Options
 
       -i, --input                   Required. The input file path.
 
