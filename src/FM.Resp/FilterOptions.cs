@@ -3,20 +3,8 @@
 namespace FM.Resp
 {
     [Verb("filter", HelpText = "Filters exported JSON.")]
-    class FilterOptions
+    class FilterOptions : OutputOptions
     {
-        [Option('i', "input", Required = true, HelpText = "The input file path.")]
-        public string Input { get; set; }
-
-        [Option('o', "output", HelpText = "The output file path. If not set, stdout is used.")]
-        public string Output { get; set; }
-
-        [Option('y', HelpText = "Overwrite the output file path, if present.")]
-        public bool Overwrite { get; set; }
-
-        [Option("indented", HelpText = "Use indented output formatting.")]
-        public bool Indented { get; set; }
-
         [Option("no-simple-strings", HelpText = "Filter top-level simple strings.")]
         public bool NoSimpleStrings { get; set; }
 

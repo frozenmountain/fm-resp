@@ -6,33 +6,14 @@ using System.Threading.Tasks;
 
 namespace FM.Resp
 {
-    class Exporter
+    class Exporter : OutputVerb<ExportOptions>
     {
-        public ExportOptions Options { get; private set; }
-
         public Exporter(ExportOptions options)
+            : base(options)
+        { }
+
+        protected override async Task<int> ProcessStream(Stream stream)
         {
-            Options = options;
-        }
-
-        public async Task<int> Run()
-        {
-            // sanity check on the file
-            if (!File.Exists(Options.Input))
-            {
-                Console.Error.WriteLine($"Input file does not exist: {Options.Input}");
-                return 1;
-            }
-
-            if (Options.Output != null && !Options.Overwrite && File.Exists(Options.Output))
-            {
-                Console.Error.WriteLine($"Output file already exists (use -y to overwrite): {Options.Output}");
-                return 1;
-            }
-
-            // open the file
-            using var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
-
             // create the parser
             var parser = new Parser(stream);
 

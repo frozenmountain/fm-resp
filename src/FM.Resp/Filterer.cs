@@ -7,35 +7,14 @@ using System.Threading.Tasks;
 
 namespace FM.Resp
 {
-    class Filterer
+    class Filterer : OutputVerb<FilterOptions>
     {
-        public FilterOptions Options { get; private set; }
-
         public Filterer(FilterOptions options)
+            : base(options)
+        { }
+
+        protected override async Task<int> ProcessStream(Stream stream)
         {
-            Options = options;
-        }
-
-        public async Task<int> Run()
-        {
-            // sanity check on the file
-            if (!File.Exists(Options.Input))
-            {
-                Console.Error.WriteLine($"Input file does not exist: {Options.Input}");
-                return 1;
-            }
-
-            if (Options.Output != null && !Options.Overwrite && File.Exists(Options.Output))
-            {
-                Console.Error.WriteLine($"Output file already exists (use -y to overwrite): {Options.Output}");
-                return 1;
-            }
-
-            await Task.Yield();
-
-            // open the file
-            using var stream = File.Open(Options.Input, FileMode.Open, FileAccess.Read, FileShare.Read);
-
             // deserialize
             Console.Error.Write("Deserializing from JSON...");
             using var streamReader = new StreamReader(stream);
@@ -222,7 +201,7 @@ namespace FM.Resp
             if (Options.Output != null)
             {
                 Console.Error.Write("Writing to output file...");
-                File.WriteAllText(Options.Output, json);
+                await File.WriteAllTextAsync(Options.Output, json);
                 Console.Error.WriteLine(" done.");
             }
             else
