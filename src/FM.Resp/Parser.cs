@@ -46,7 +46,6 @@ namespace FM.Resp
             var result = new ParseResult();
 
             // initialize collection
-            var allElements = new List<Element>();
             var elementsByType = new Dictionary<DataType, List<Element>>();
             foreach (var type in result.Types)
             {
@@ -67,16 +66,12 @@ namespace FM.Resp
                 }
                 return result;
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 // one final update to position cursor
                 while (displayingProgress)
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(1).ConfigureAwait(false);
                 }
                 DisplayProgress(_Stream, false);
             }

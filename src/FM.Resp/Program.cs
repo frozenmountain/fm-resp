@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FM.Resp
 {
-    class Program
+    internal static class Program
     {
         static void Main(string[] args)
         {

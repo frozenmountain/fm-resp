@@ -12,7 +12,7 @@ namespace FM.Resp
 
         private readonly Stream _Stream;
         private long _StreamPosition;
-        private int _NextIndex = 0;
+        private int _NextIndex;
 
         public Reader(Stream stream)
         {
@@ -70,7 +70,7 @@ namespace FM.Resp
                     ':' => DataType.Integer,
                     '$' => DataType.BulkString,
                     '*' => DataType.Array,
-                    _ => throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading type at position {_StreamPosition}."),
+                    _ => throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{c}' while reading type at position {_StreamPosition}."),
                 };
             }
             finally
@@ -93,7 +93,7 @@ namespace FM.Resp
                         _StreamPosition++;
                         return Encoding.ASCII.GetString(bytes.ToArray());
                     }
-                    throw new Exception($"Stream is corrupt. Unexpected character '{b}' while reading second byte of {label} termination at position {_StreamPosition}.");
+                    throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{b}' while reading second byte of {label} termination at position {_StreamPosition}.");
                 }
                 else if (b == '\n')
                 {
@@ -132,7 +132,7 @@ namespace FM.Resp
             var lengthAscii = ReadAscii("bulk string length");
             if (!int.TryParse(lengthAscii, out var length))
             {
-                throw new Exception($"Stream is corrupt. Could not parse integer '{lengthAscii}' at position {lengthPosition}.");
+                throw new CorruptStreamException($"Stream is corrupt. Could not parse integer '{lengthAscii}' at position {lengthPosition}.");
             }
             if (length == -1)
             {
@@ -140,7 +140,11 @@ namespace FM.Resp
             }
 
             var bytes = new byte[length];
-            await _Stream.ReadAsync(bytes);
+            var readLength = await _Stream.ReadAsync(bytes);
+            if (readLength != bytes.Length)
+            {
+                throw new CorruptStreamException($"Stream is corrupt. Read {readLength} bytes but expected {bytes.Length} bytes at position {_StreamPosition}.");
+            }
             _StreamPosition += bytes.Length;
 
             var c = (char)_Stream.ReadByte();
@@ -158,7 +162,7 @@ namespace FM.Resp
                     }
                     else
                     {
-                        throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
+                        throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
                     }
                 }
                 else if (x == '\n')
@@ -168,7 +172,7 @@ namespace FM.Resp
                 }
                 else
                 {
-                    throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
+                    throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
                 }
             }
 
@@ -194,7 +198,12 @@ namespace FM.Resp
                             Buffer.BlockCopy(bytes, i + spliceLength, bytes, i, bytes.Length - i - spliceLength);
 
                             var newBytes = new byte[spliceLength - 1];
-                            await _Stream.ReadAsync(newBytes);
+                            var readOKLength = await _Stream.ReadAsync(newBytes);
+                            if (readOKLength != newBytes.Length)
+                            {
+                                throw new CorruptStreamException($"Stream is corrupt. Read {readOKLength} bytes but expected {newBytes.Length} bytes at position {_StreamPosition}.");
+                            }
+
                             _StreamPosition += newBytes.Length;
 
                             bytes[bytes.Length - newBytes.Length] = (byte)c;
@@ -247,7 +256,7 @@ namespace FM.Resp
                     var value = Encoding.UTF8.GetString(bytes);
                     return new Element(DataType.BulkString, value, _NextIndex++, value.Length);
                 }
-                throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading second byte of bulk string termination at position {_StreamPosition}.");
+                throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{c}' while reading second byte of bulk string termination at position {_StreamPosition}.");
             }
             else if (c == '\n')
             {
@@ -257,7 +266,7 @@ namespace FM.Resp
             }
             else
             {
-                throw new Exception($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
+                throw new CorruptStreamException($"Stream is corrupt. Unexpected character '{c}' while reading first byte of bulk string termination at position {_StreamPosition}.");
             }
         }
 
@@ -274,7 +283,7 @@ namespace FM.Resp
             var array = new Element[count];
             for (var i = 0; i < count; i++)
             {
-                array[i] = await ReadAsync();
+                array[i] = await ReadAsync().ConfigureAwait(false);
             }
             _NextIndex = currentNextIndex;
             return new Element(DataType.Array, array, _NextIndex++, count);

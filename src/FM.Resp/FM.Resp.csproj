@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-      <AssemblyName>fmresp</AssemblyName>
+    <AssemblyName>fmresp</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
