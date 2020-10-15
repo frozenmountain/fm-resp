@@ -1,5 +1,7 @@
 # FM RESP CLI
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0fb2c9fc384442ac9acbe1640c77ad5c)](https://app.codacy.com/gh/frozenmountain/fm-resp?utm_source=github.com&utm_medium=referral&utm_content=frozenmountain/fm-resp&utm_campaign=Badge_Grade)
+
 ![build](https://github.com/frozenmountain/fm-resp/workflows/build/badge.svg) ![license](https://img.shields.io/badge/License-MIT-yellow.svg) ![release](https://img.shields.io/github/v/release/frozenmountain/fm-resp.svg)
 
 The FM RESP CLI lets you parse [RESP (REdis Serialization Protocol)](https://redis.io/topics/protocol) streams.
